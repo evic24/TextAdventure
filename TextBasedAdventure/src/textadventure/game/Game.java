@@ -6,8 +6,17 @@ public class Game {
 	    private Room currentRoom;
 	    private boolean detailed;
 	    private Player player;
-	    private CLS cls_var;
+	    //private CLS cls_var;
 	    private int count;
+	    private boolean seeKey;
+	    private boolean seeFlashlight;
+	    private boolean seeHolyWater;
+	    private boolean seeMatches;
+	    private boolean seePocket;
+	    private boolean shineFlashlight;
+	    private String password;
+	    private boolean unlockComputer;
+	    private boolean enterUsername;
 	    
 	    public Game() {
 	        parser = new Parser();
@@ -28,8 +37,7 @@ public class Game {
 	        else {
 	            System.out.println(currentRoom.getShortDescription());
 	        }
-	        System.out.println(currentRoom.getExitString());
-	        System.out.println(currentRoom.getInventoryString()); 
+	        System.out.println(currentRoom.getExitString()); 
 	    }
 	    
 	    public void setUpGame() {
@@ -44,20 +52,16 @@ public class Game {
 	        
 	        Item paper = new Item("paper", "paper description"); //change description
 	        Item key = new Item("key", "key description");
-	        Item poster = new Item("poster", "poster description");
 	        Item flashlight = new Item("flashlight", "flashlight description");
-	        Item musicBox = new Item("music box", "music box description");
 	        Item book = new Item("book", "book description");
 	        Item holyWater = new Item("holy water", "holy water description");
 	        Item matches = new Item("box of matches", "matches description");
 	        
 	        rightWing.setItem("paper", paper);
-	        dressingRoom.setItem("poster", poster);
 	        house.setItem("key", key);
 	        dressingRoom.setItem("holy water", holyWater);
-	        dressingRoom.setItem("box of matches", matches);
+	        dressingRoom.setItem("matches", matches);
 	        techBooth.setItem("flashlight", flashlight);
-	        backstage.setItem("music box", musicBox);
 	        backstage.setItem("book", book);
 	        
 	        stage.setExit("south", backstage);
@@ -79,11 +83,14 @@ public class Game {
 	        techBooth.setExit("south", house);
 	        
 	        currentRoom = stage;
+	        password = "E24E20R11J16";
+	        
 	        try {
-	                cls_var.main(); 
+	                //cls_var.main(); 
 	            }catch(Exception e) {
 	                System.out.println(e); 
 	            }
+	        
 	        printInformation();
 	    }
 	    
@@ -91,7 +98,7 @@ public class Game {
 	        while(true) {
 	            Command command = parser.getCommand();
 	            try {
-	                cls_var.main(); 
+	                //cls_var.main(); 
 	            }catch(Exception e) {
 	                System.out.println(e); 
 	            }
@@ -120,7 +127,6 @@ public class Game {
 	                System.out.println(player.getInventoryString());
 	                break;
 	            case "grab":
-	            case "get":
 	            case "take":
 	                grab(command);
 	                break;
@@ -128,7 +134,6 @@ public class Game {
 	                drop(command);
 	                break;
 	            case "examine":
-	            case "x":
 	                examine(command);
 	                break;
 	            case "counter":
@@ -138,45 +143,173 @@ public class Game {
 	            case "read":
 	                read(command);
 	                break;
+	            case "shine":
+	            	shine(command);
+	            	break;
 	            case "look":
-	            	
+	            	look(command);
+	            	break;
+	            case "unlock":
+	            	unlock(command);
+	            	break;
+	            case "username":
+	            	username(command);
+	            	break;
+	            case "password":
+	            	password(command);
+	            	break;
 	            default:
 	                System.out.println("that is not a valid command");
 	        }
 	    }
 	    
+	    public void password(Command command) {
+	    	if(!enterUsername) {
+	    		System.out.println("you cannot enter a password until you have entered a username. please enter a username");
+	    		return;
+	    	}
+	    	else if(command.getSecondWord().equals(password)) {
+	    		System.out.println("you have entered '" +password +"' as the password. you have successfully unlocked the computer. you can see a video with a play button on it on the screen that looks like a recording of a musical at this theater. the date says it was recorded yesterday");
+	    		unlockComputer = true;
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("that is not the right password. please try again");
+	    		return;
+	    	}
+	    }
+	    
+	    public void username(Command command) {
+	    	if(command.getSecondWord().equals("brian") && command.getLine().equals("adams")) {
+	    		System.out.println("you entered 'Brian Adams' as the username. you now have to enter a password");
+	    		enterUsername = true;
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("that is not the correct username. please try again");
+	    		return;
+	    	}
+	    }
+	    
+	    public void unlock(Command command) {
+	    	if(!command.hasSecondWord()) {
+	    		System.out.println("unlock what?");
+	    		return;
+	    	}
+	    	else if(!command.getSecondWord().equals("toolbox")) {
+	    		System.out.println("you cannot unlock that");
+	    		return;
+	    	}
+	    	else if(!currentRoom.getName().equals("tech booth")) {
+	    		System.out.println("you cannot do that here");
+	    		return;
+	    	}
+	    	else if(player.getItem("key")==null) {
+	    		System.out.println("you do not have a key to unlock the toolbox with");
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("you unlock the toolbox with the key. within the toolbox, you see a flashlight as well as other unimportant tools");
+	    		player.removeItem("key");
+	    		seeFlashlight = true;
+	    	}
+	    }
+	    
+	    public void hold(Command command) {
+	    	if(!command.hasSecondWord()) {
+	    		System.out.println("hold what?");
+	    		return;
+	    	}
+	    	else if(!command.getSecondWord().equals("paper")) {
+	    		System.out.println("you cannot do that");
+	    		return;
+	    	}
+	    	else if(player.getItem("paper") == null) {
+	    		System.out.println("you do not have the paper in your inventory");
+	    		return;
+	    	}
+	    	else if(!currentRoom.getName().equals("dressing room")) {
+	    		System.out.println("you cannot do that here");
+	    		return;
+	    	}
+	    	else if(command.getLine().equals("up") || command.getLine().equals("to mirror")) {
+	    		if(!shineFlashlight) {
+	    			System.out.println("you hold the paper up to the mirror. you still see nothing on the paper");
+	    			return;
+	    		}
+	    		System.out.println("you hold the paper up to the mirror.");
+	    		player.getItem("paper").changeDescription("holding the paper up to the mirror, you can now see that the paper reads PASSWORD: E24E20R11J16. the writing has been magically changed and now does not appear backwards when you read it normally");
+	    		System.out.println(player.getItem("paper").getDescription());
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("i don't understand. try saying hold ___ to ____ or hold ___ up");
+	    		return;
+	    	}
+	    }
+	    
 	    public void look(Command command) {
-	    	
+	    	if(!command.hasSecondWord()) {
+	    		System.out.println("look where? try up or down");
+	    		return;
+	    	}
+	    	else if(!command.getSecondWord().equals("up") || !command.getSecondWord().equals("down")) {
+	    		System.out.println("you cannot do that. try look up or look down");
+	    		return;
+	    	}
+	    	else if(currentRoom.getName().equals("stage") && command.getSecondWord().equals("up")) {
+	    		System.out.println("you look up and see a giant cage hanging from the ceiling by a rope. it is probably connected to a pulley and used as a set piece.");
+	    		return;
+	    	}
+	    	else if(currentRoom.getName().equals("house") && command.getSecondWord().equals("down")) {
+	    		System.out.println("you look down and see a key under one of the seats");
+	    		seeKey = true;
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("you cannot look "+command.getSecondWord() +" here");
+	    		return;
+	    	}
 	    }
 	    
 	    public void shine(Command command) {
-	        if(!command.getSecondWord().equals("flashlight")) {
+	        if(shineFlashlight) {
+	        	System.out.println("you shine the flashlight on the paper. nothing changes");
+	        	return;
+	        }
+	        else if(!command.getSecondWord().equals("flashlight")) {
 	            System.out.println("you cannot do that");
 	            return;
 	        }
-	        if(command.getLine().equals("on paper") || command.getLine().equals("at paper")) {
-	        	System.out.println("you shined the flashlight on the piece on paper. you can now see writing")
+	        else if(command.getLine().equals("on paper") || command.getLine().equals("at paper")) {
+	        	if(player.getItem("paper")==null) {
+	        		System.out.println("you do not have the piece of paper in your inventory");
+	        		return;
+	        	}
+	        	System.out.println("you shined the flashlight on the piece on paper.");
+	        	player.getItem("paper").changeDescription("after shining the flashlight on the paper, you can now see writing, presumably written in invisible ink. the writing appears to be backwards and you cannot read it.");
+	        	System.out.println(player.getItem("paper").getDescription());
+	        	shineFlashlight = true;
+	        	return;
+	        }
+	        else {
+	        	System.out.println("you cannot do that. try shining the flashlight at something");
+	        	return;
 	        }
 	    }
 	    
 	    public void read(Command command) {
 	        if(!command.hasSecondWord()) {
 	            System.out.println("read what?");
+	            return;
 	        }
-	        String item = command.getSecondWord();
-	        Item itemToRead = currentRoom.getItem(item);
-	        if(itemToRead == null) {
-	            itemToRead = player.getItem(item);
+	        else if(currentRoom.getName().equals("house") && command.getSecondWord().equals("engraving")) {
+	        	System.out.println("the engraving reads: \n This theater is dedicated to Brian Adams, the founder of Lab Productions.");
+	        	return;
 	        }
-	        switch(item) {
-	            case "paper":
-	                System.out.println(itemToRead.getDescription());
-	                break;
-	            case "engraving":
-	                System.out.println("this is what the engraving says"); //change this later
-	                break;
-	            default: 
-	                System.out.println("you cannot read that");
+	        else {
+	        	System.out.println("you cannot read that. try examine or check your spelling");
+	        	return;
 	        }
 	    }
 	    
@@ -206,8 +339,35 @@ public class Game {
 	        if(thingToExamine.equals(currentRoom.getName())) {
 	            printString += "the room: " +currentRoom.getName() + "\n" + currentRoom.getLongDescription();
 	        }
+	        else if((thingToExamine.equals("nun costume") || thingToExamine.equals("costume")) && currentRoom.getName().equals("dressing room")) {
+	        	System.out.println("you examine the nun costume. you can see a pocket with things inside of it.");
+	        	seePocket = true;
+	        	return;
+	        }
+	        else if(thingToExamine.equals("pocket") && currentRoom.getName().equals("dressing room") && seePocket) {
+	        	System.out.println("you examine the pocket of the costume. inside you see a bottle of holy water and a box of matches");
+	        	seeMatches = true;
+	        	seeHolyWater = true;
+	        	return;
+	        }
 	        else if(currentRoom.getItem(thingToExamine) != null) {
-	            printString += "the item: " +currentRoom.getItem(thingToExamine).getName() + "\n" +currentRoom.getItem(thingToExamine).getDescription();
+	            if(seeKey || thingToExamine.equals("key")) {
+	            	System.out.println("you do not see a key right now");
+	            	return;
+	            }
+	            else if(seeFlashlight || thingToExamine.equals("flashlight")) {
+	            	System.out.println("you do not see a flashlight right now");
+	            	return;
+	            }
+	            else if(seeHolyWater || thingToExamine.equals("holy water")) {
+	            	System.out.println("you do not see holy water right now");
+	            	return;
+	            }
+	            else if(seeMatches || thingToExamine.equals("matches")) {
+	            	System.out.println("you do not see matches right now");
+	            	return;
+	            }
+	        	printString += "the item: " +currentRoom.getItem(thingToExamine).getName() + "\n" +currentRoom.getItem(thingToExamine).getDescription();
 	        }
 	        else if(player.getItem(thingToExamine) != null) {
 	            printString += "the item: " +player.getItem(thingToExamine).getName() + "\n" +player.getItem(thingToExamine).getDescription();
@@ -224,18 +384,36 @@ public class Game {
 	            System.out.println(command.getCommandWord() +" what?");
 	            return;
 	        }
+	        String item;
 	        if(command.hasLine()) {
-	            System.out.println("i don't understand");
-	            return;
+	            item = command.getSecondWord() + command.getLine();
 	        }
-	        String item = command.getSecondWord();
+	        else {
+	        	item = command.getSecondWord();
+	        }
 	        Item itemToGrab = currentRoom.getItem(item);
 	        if(itemToGrab == null) {
 	            System.out.println("you cannot " +command.getCommandWord() +" that");
 	            return;
 	        }
+	        else if(seeKey || item.equals("key")) {
+	        	System.out.println("you do not see a key right now");
+            	return;
+	        }
+	        else if(seeFlashlight || item.equals("flashlight")) {
+	        	System.out.println("you do not see a flashlight right now");
+	        	return;
+	        }
+	        else if(seeHolyWater || item.equals("holy water")) {
+	        	System.out.println("you do not see holy water right now");
+	        	return;
+	        }
+	        else if(seeMatches || item.equals("matches")) {
+	        	System.out.println("you do not see matches right now");
+	        	return;
+	        }
 	        else {
-	            currentRoom.removeItem(item);
+	        	currentRoom.removeItem(item);
 	            player.setItem(item, itemToGrab);
 	            System.out.println("you took the " +item); 
 	        }
@@ -246,7 +424,7 @@ public class Game {
 	            System.out.println("drop what?");
 	            return;
 	        }
-	        if(command.hasLine()) {
+	        else if(command.hasLine()) {
 	            System.out.println("i don't understand");
 	            return;
 	        }
@@ -268,7 +446,7 @@ public class Game {
 	            System.out.println("go where?");
 	            return;
 	        }
-	        if(command.hasLine()) {
+	        else if(command.hasLine()) {
 	            System.out.println("i don't understand");
 	            return;
 	        }

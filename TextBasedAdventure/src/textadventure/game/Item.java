@@ -17,7 +17,7 @@ public class Item {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void changeDescription(String description) {
         this.description = description;
     }
 }
