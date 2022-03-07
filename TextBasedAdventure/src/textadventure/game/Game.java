@@ -7,7 +7,7 @@ public class Game {
 	    private boolean detailed;
 	    private Player player;
 	    //private CLS cls_var;
-	    private int count;
+	    private int moveCount;
 	    private boolean seeKey;
 	    private boolean seeFlashlight;
 	    private boolean seeHolyWater;
@@ -17,6 +17,8 @@ public class Game {
 	    private String password;
 	    private boolean unlockComputer;
 	    private boolean enterUsername;
+	    private boolean musicBoxOn;
+	    private int musicCount;
 	    
 	    public Game() {
 	        parser = new Parser();
@@ -43,19 +45,20 @@ public class Game {
 	    public void setUpGame() {
 	        //creates environment of game
 	        Room stage = new Room("stage", "you are standing in the center of an empty stage looking out onto floor seats.", "you are standing in the center of an empty stage looking out onto rows of empty floor seats. velvet curtains block the stage from the wings. there’s an eerie vibe, as if you are not alone in this theater, yet there seems to be no sign of anyone else in this place.");
-	        Room backstage = new Room("backstage", "you are backstage. there are lots of props and set pieces around.", "you have entered the backstage. a large velvet curtain separates you from the main stage. you can see many props and set pieces around, including a table and a pile of books.");
+	        Room backstage = new Room("backstage", "you are backstage. there are lots of props and set pieces around.", "you have entered the backstage. a large velvet curtain separates you from the main stage. you can see many props and set pieces around, including a table with a book and a music box on it.");
 	        Room rightWing = new Room("right wing", "you are in the right wing of the backstage area.", "you have entered the right wing of the backstage area. to the southwest is the backstage and to the west is the stage. dark velvet curtains separate you from the main stage. you can see a piece of paper on the ground in front of you.");
-	        Room leftWing = new Room("left wing", "you are in the left wing of the backstage area.", "you have entered the left wing of the backstage area. to the south is the dressing room, to the east is the stage, and to the southeast is the backstage. Dark velvet curtains separate you from the main stage. off to the side is a headset and a theater script.");
-	        Room dressingRoom = new Room("dressing room", "you are in the dressing room. you can see costumes and a mirror.", "you have entered the dressing room. to the north is the left wing and to the east is the backstage. various costumes hang from clothing racks against the wall. there is a long mirror against the other wall with a poster attached to it.");
-	        Room house = new Room("house", "you are standing in the main aisle of the house. rows of empty floor seats surround you.", "you are standing in the main aisle of the house. rows of empty floor seats surround you. there is an engraving on the side of one of the seats. to the north, you see a large balcony with technical machinery that looks onto the stage.");
-	        Room techBooth = new Room("tech booth", "you are standing in the tech booth, also known as the control booth, on a balcony facing the stage.", "you are standing in the tech booth, also known as the control booth, on a balcony above the house facing the stage. there is various technical equipment here. on a long table are a soundboard, a lighting board, a computer, and tape.");
+	        Room leftWing = new Room("left wing", "you are in the left wing of the backstage area.", "you have entered the left wing of the backstage area. to the south is the dressing room, to the east is the stage, and to the southeast is the backstage. Dark velvet curtains separate you from the main stage. on the wall are two pulleys, one tied to the wall and the other open and ready to pull");
+	        Room dressingRoom = new Room("dressing room", "you are in the dressing room. you can see costumes and a mirror.", "you have entered the dressing room. to the north is the left wing and to the east is the backstage. various costumes hang from clothing racks against the wall including a nun costume. there is a long mirror against the other wall.");
+	        Room house = new Room("house", "you are standing in the main aisle of the house. rows of empty floor seats surround you.", "you are standing in the main aisle of the house. rows of empty floor seats surround you. there is an engraving on the side of one of the seats. there seems to be some object underneath one of the seats. to the north, you see a large balcony with technical machinery that looks onto the stage.");
+	        Room techBooth = new Room("tech booth", "you are standing in the tech booth, also known as the control booth, on a balcony facing the stage.", "you are standing in the tech booth, also known as the control booth, on a balcony above the house facing the stage. there is various technical equipment here. on a long table is a computer. next to it is a large toolbox with what appears to be a keyhole.");
 	        
-	        Item paper = new Item("paper", "paper description"); //change description
-	        Item key = new Item("key", "key description");
-	        Item flashlight = new Item("flashlight", "flashlight description");
-	        Item book = new Item("book", "book description");
-	        Item holyWater = new Item("holy water", "holy water description");
-	        Item matches = new Item("box of matches", "matches description");
+	        Item paper = new Item("paper", "the paper is small and appears to have no writing on it. however, you can see a slight difference in texture in some areas of the paper");
+	        Item key = new Item("key", "the key is silver and metal. it probably unlocks something in this theater.");
+	        Item flashlight = new Item("flashlight", "the flashlight is an LED UV flashlight. it is black and lightweight.");
+	        Item book = new Item("book", "the book is titled 'Getting Rid of Ghosts. the front page says:\n'when you have a ghost or phantom trapped, spray holy water on it and light it on fire to get rid of it.'");
+	        Item holyWater = new Item("holy water", "the holy water is contained in a plastic spray bottle with a label that says 'holy water'. it is clear and somewhat shimmery.");
+	        Item matches = new Item("matches", "the box of matches is small and contains 12 matches. it seems to be unused.");
+	        Item musicBox = new Item("music box", "the music box is pink and looks very old. it has a hand crank on the side of it. the top is open and you can see a small ballerina in the center of the box.");
 	        
 	        rightWing.setItem("paper", paper);
 	        house.setItem("key", key);
@@ -63,10 +66,12 @@ public class Game {
 	        dressingRoom.setItem("matches", matches);
 	        techBooth.setItem("flashlight", flashlight);
 	        backstage.setItem("book", book);
+	        backstage.setItem("music box", musicBox);
 	        
 	        stage.setExit("south", backstage);
 	        stage.setExit("east", rightWing);
 	        stage.setExit("west", leftWing);
+	        stage.setExit("north", house);
 	        backstage.setExit("north", stage);
 	        backstage.setExit("northeast", rightWing);
 	        backstage.setExit("west", dressingRoom);
@@ -91,6 +96,7 @@ public class Game {
 	                System.out.println(e); 
 	            }
 	        
+	        welcomeString();
 	        printInformation();
 	    }
 	    
@@ -103,7 +109,10 @@ public class Game {
 	                System.out.println(e); 
 	            }
 	            processCommand(command);
-	            count++;
+	            moveCount++;
+	            if(musicBoxOn) {
+	            	musicCount++;
+	            }
 	        }
 	    }
 	    
@@ -118,9 +127,11 @@ public class Game {
 	                goRoom(command);
 	                break;
 	            case "verbose":
+	            	System.out.println("long room descriptions will always be printed now");
 	                detailed = true;
 	                break;
 	            case "brief":
+	            	System.out.println("short room descriptions will always be printed now");
 	                detailed = false;
 	                break;
 	            case "inventory":
@@ -138,7 +149,9 @@ public class Game {
 	                break;
 	            case "counter":
 	                counter(command);
+	                break;
 	            case "help":
+	            	help();
 	                break;
 	            case "read":
 	                read(command);
@@ -158,13 +171,55 @@ public class Game {
 	            case "password":
 	            	password(command);
 	            	break;
+	            case "play":
+	            	play(command);
+	            	break;
+	            case "info":
+	            	welcomeString();
+	            	break;
+	            case "hold":
+	            	hold(command);
+	            	break;
 	            default:
 	                System.out.println("that is not a valid command");
 	        }
 	    }
 	    
+	    public void help() {
+	    	System.out.println("here is a list of valid commands:\n\nBRIEF, to only print short room descriptions\nVERBOSE, to only print long room descriptions\nGO followed by a direction, to move to another room\nINVENTORY, to print a list of the items in your personal inventory\nGRAB or TAKE followed by an item, to place it in your personal inventory\nDROP followed by an item, to remove it from your personal inventory and place it in the current room\nEXAMINE followed by a room or object, to get the description of the room or object\nCOUNTER, to see how many moves you have left\nHELP, to get this list again\nREAD followed by an object\nSHINE ____ AT ____\nLOOK followed by up or down\nUNLOCK followed by an object\nUSERNAME\nPASSWORD\nPLAY followed by an object\nHOLD ___ TO ____\nINFO, to print the welcome message");
+	    }
+	    
+	    public void play(Command command) {
+	    	if(!command.hasLine()) {
+	    		System.out.println("play what?");
+	    		return;
+	    	}
+	    	else if(command.getSecondWord().equals("music")) {
+	    		if(currentRoom.getItem("music box")!=null) {
+	    			System.out.println("you turn the handle of the music box. music starts playing and the ballerina starts turning. it is a gentle sound but begins to sound creepy after a little bit. you get a weird feeling and think that you should probably stop the music before something bad happens.");
+	    			musicBoxOn = true;
+	    		}
+	    		else if(player.getItem("music box")!=null) {
+	    			System.out.println("you must drop the music box to play it.");
+	    			return;
+	    		}
+	    		else {
+	    			System.out.println("you do not see a music box");
+	    			return;
+	    		}
+	    	}
+	    	else {
+	    		System.out.println("you cannot play that");
+	    		return;
+	    	}
+	    }
+	    
 	    public void password(Command command) {
-	    	if(!enterUsername) {
+	    	if(unlockComputer) {
+	    		System.out.println("you already unlocked the computer. try a different command");
+	    		return;
+	    	}
+	    	else if(!enterUsername) {
 	    		System.out.println("you cannot enter a password until you have entered a username. please enter a username");
 	    		return;
 	    	}
@@ -180,13 +235,21 @@ public class Game {
 	    }
 	    
 	    public void username(Command command) {
-	    	if(command.getSecondWord().equals("brian") && command.getLine().equals("adams")) {
-	    		System.out.println("you entered 'Brian Adams' as the username. you now have to enter a password");
+	    	if(unlockComputer) {
+	    		System.out.println("you already unlocked the computer");
+	    		return;
+	    	}
+	    	else if(enterUsername) {
+	    		System.out.println("you already entered the username. you now have to enter a password");
+	    		return;
+	    	}
+	    	else if(command.getSecondWord().equals("brian") && command.getLine().equals(" adams")) {
+	    		System.out.println("you entered 'Brian Adams' as the username. the computer reads: enter a password");
 	    		enterUsername = true;
 	    		return;
 	    	}
 	    	else {
-	    		System.out.println("that is not the correct username. please try again");
+	    		System.out.println("the computer reads: incorrect username. try again");
 	    		return;
 	    	}
 	    }
@@ -201,11 +264,11 @@ public class Game {
 	    		return;
 	    	}
 	    	else if(!currentRoom.getName().equals("tech booth")) {
-	    		System.out.println("you cannot do that here");
+	    		System.out.println("you do not see anything to unlock");
 	    		return;
 	    	}
 	    	else if(player.getItem("key")==null) {
-	    		System.out.println("you do not have a key to unlock the toolbox with");
+	    		System.out.println("you need a key to unlock the toolbox");
 	    		return;
 	    	}
 	    	else {
@@ -220,30 +283,35 @@ public class Game {
 	    		System.out.println("hold what?");
 	    		return;
 	    	}
-	    	else if(!command.getSecondWord().equals("paper")) {
-	    		System.out.println("you cannot do that");
-	    		return;
+	    	String item;
+	    	if(command.hasLine()) {
+	    		item = command.getSecondWord() + command.getLine();
 	    	}
-	    	else if(player.getItem("paper") == null) {
-	    		System.out.println("you do not have the paper in your inventory");
-	    		return;
+	    	else {
+	    		item = command.getSecondWord();
 	    	}
-	    	else if(!currentRoom.getName().equals("dressing room")) {
-	    		System.out.println("you cannot do that here");
-	    		return;
-	    	}
-	    	else if(command.getLine().equals("up") || command.getLine().equals("to mirror")) {
+	    	if(currentRoom.getName().equals("dressing room") && item.equals("paper to mirror") && player.getItem("paper")!=null) {
 	    		if(!shineFlashlight) {
 	    			System.out.println("you hold the paper up to the mirror. you still see nothing on the paper");
 	    			return;
 	    		}
-	    		System.out.println("you hold the paper up to the mirror.");
-	    		player.getItem("paper").changeDescription("holding the paper up to the mirror, you can now see that the paper reads PASSWORD: E24E20R11J16. the writing has been magically changed and now does not appear backwards when you read it normally");
-	    		System.out.println(player.getItem("paper").getDescription());
+	    		else {
+	    			System.out.println("you hold the paper up to the mirror.");
+	    			player.getItem("paper").changeDescription("holding the paper up to the mirror, you can now see that the paper reads PASSWORD: E24E20R11J16. the writing has been magically changed and now does not appear backwards when you read it normally");
+		    		System.out.println(player.getItem("paper").getDescription());
+		    		return;
+	    		}
+	    	}
+	    	else if(player.getItem(item)!=null) {
+	    		System.out.println("you hold the " +item);
+	    		return;
+	    	}
+	    	else if(player.getItem(item)==null) {
+	    		System.out.println("you do not have the " +item +" in your inventory");
 	    		return;
 	    	}
 	    	else {
-	    		System.out.println("i don't understand. try saying hold ___ to ____ or hold ___ up");
+	    		System.out.println("you cannot hold that");
 	    		return;
 	    	}
 	    }
@@ -253,8 +321,8 @@ public class Game {
 	    		System.out.println("look where? try up or down");
 	    		return;
 	    	}
-	    	else if(!command.getSecondWord().equals("up") || !command.getSecondWord().equals("down")) {
-	    		System.out.println("you cannot do that. try look up or look down");
+	    	else if(!command.getSecondWord().equals("up") && !command.getSecondWord().equals("down")) {
+	    		System.out.println("you cannot look there. try look up or look down");
 	    		return;
 	    	}
 	    	else if(currentRoom.getName().equals("stage") && command.getSecondWord().equals("up")) {
@@ -267,33 +335,43 @@ public class Game {
 	    		return;
 	    	}
 	    	else {
-	    		System.out.println("you cannot look "+command.getSecondWord() +" here");
+	    		System.out.println("you look "+command.getSecondWord() +". you do not see anything special");
 	    		return;
 	    	}
 	    }
 	    
 	    public void shine(Command command) {
-	        if(shineFlashlight) {
-	        	System.out.println("you shine the flashlight on the paper. nothing changes");
-	        	return;
-	        }
+	    	if(!command.hasSecondWord()) {
+	    		System.out.println("shine what?");
+	    		return;
+	    	}
 	        else if(!command.getSecondWord().equals("flashlight")) {
-	            System.out.println("you cannot do that");
+	            System.out.println("you cannot shine that");
 	            return;
 	        }
-	        else if(command.getLine().equals("on paper") || command.getLine().equals("at paper")) {
-	        	if(player.getItem("paper")==null) {
-	        		System.out.println("you do not have the piece of paper in your inventory");
-	        		return;
-	        	}
-	        	System.out.println("you shined the flashlight on the piece on paper.");
-	        	player.getItem("paper").changeDescription("after shining the flashlight on the paper, you can now see writing, presumably written in invisible ink. the writing appears to be backwards and you cannot read it.");
-	        	System.out.println(player.getItem("paper").getDescription());
-	        	shineFlashlight = true;
+	        else if(!command.hasLine()) {
+	        	System.out.println("you shine the flashlight. nothing changes so you turn it off");
 	        	return;
 	        }
+	        else if(command.getLine().equals(" at paper")) {
+	        	if(player.getItem("paper")==null) {
+	        		System.out.println("you do not have the paper in your inventory");
+	        		return;
+	        	}
+	        	else if(shineFlashlight) {
+		        	System.out.println("you shine the flashlight on the paper. nothing changes so you turn it off");
+		        	return;
+		        }
+	        	else {
+	        		System.out.println("you shine the flashlight on the piece on paper.");
+	        		player.getItem("paper").changeDescription("after shining the flashlight on the paper, you can now see writing, presumably written in invisible ink. the writing appears to be backwards and you cannot read it.");
+		        	System.out.println(player.getItem("paper").getDescription());
+		        	shineFlashlight = true;
+		        	return;
+	        	}
+	        }
 	        else {
-	        	System.out.println("you cannot do that. try shining the flashlight at something");
+	        	System.out.println("you cannot shine the flashlight there");
 	        	return;
 	        }
 	    }
@@ -304,7 +382,7 @@ public class Game {
 	            return;
 	        }
 	        else if(currentRoom.getName().equals("house") && command.getSecondWord().equals("engraving")) {
-	        	System.out.println("the engraving reads: \n This theater is dedicated to Brian Adams, the founder of Lab Productions.");
+	        	System.out.println("the engraving reads: \n\nThis theater is dedicated to Brian Adams, the founder of Lab Productions.");
 	        	return;
 	        }
 	        else {
@@ -318,7 +396,7 @@ public class Game {
 	            System.out.println("i don't understand");
 	            return;
 	        }
-	        int movesLeft = 200 - count;
+	        int movesLeft = 200 - moveCount;
 	        System.out.println("moves left: " +movesLeft);
 	    }
 	    
@@ -335,8 +413,7 @@ public class Game {
 	        else if(command.hasLine()) {
 	            thingToExamine = command.getSecondWord() + command.getLine();
 	        }
-	        
-	        if(thingToExamine.equals(currentRoom.getName())) {
+	        if(thingToExamine.equals(currentRoom.getName()) || thingToExamine.equals("room")) {
 	            printString += "the room: " +currentRoom.getName() + "\n" + currentRoom.getLongDescription();
 	        }
 	        else if((thingToExamine.equals("nun costume") || thingToExamine.equals("costume")) && currentRoom.getName().equals("dressing room")) {
@@ -350,20 +427,24 @@ public class Game {
 	        	seeHolyWater = true;
 	        	return;
 	        }
+	        else if(thingToExamine.equals("computer") && currentRoom.getName().equals("tech booth") && !unlockComputer) {
+	        	System.out.println("you examine the computer. on the front screen is a login page with places to enter in a username and password. you have a feeling that there is something important on this computer. to enter a username, type 'username' followed by the username. to enter a password, type 'password' followed by a password.");
+	        	return;
+	        }
 	        else if(currentRoom.getItem(thingToExamine) != null) {
-	            if(seeKey || thingToExamine.equals("key")) {
+	            if(!seeKey && thingToExamine.equals("key")) {
 	            	System.out.println("you do not see a key right now");
 	            	return;
 	            }
-	            else if(seeFlashlight || thingToExamine.equals("flashlight")) {
+	            else if(!seeFlashlight && thingToExamine.equals("flashlight")) {
 	            	System.out.println("you do not see a flashlight right now");
 	            	return;
 	            }
-	            else if(seeHolyWater || thingToExamine.equals("holy water")) {
+	            else if(!seeHolyWater && thingToExamine.equals("holy water")) {
 	            	System.out.println("you do not see holy water right now");
 	            	return;
 	            }
-	            else if(seeMatches || thingToExamine.equals("matches")) {
+	            else if(!seeMatches && thingToExamine.equals("matches")) {
 	            	System.out.println("you do not see matches right now");
 	            	return;
 	            }
@@ -373,7 +454,7 @@ public class Game {
 	            printString += "the item: " +player.getItem(thingToExamine).getName() + "\n" +player.getItem(thingToExamine).getDescription();
 	        }
 	        else {
-	            System.out.println("you can't examine that");
+	            System.out.println("you see nothing special about the " +thingToExamine);
 	            return;
 	        }
 	        System.out.println(printString);
@@ -396,19 +477,19 @@ public class Game {
 	            System.out.println("you cannot " +command.getCommandWord() +" that");
 	            return;
 	        }
-	        else if(seeKey || item.equals("key")) {
+	        else if(!seeKey && item.equals("key")) {
 	        	System.out.println("you do not see a key right now");
             	return;
 	        }
-	        else if(seeFlashlight || item.equals("flashlight")) {
+	        else if(!seeFlashlight && item.equals("flashlight")) {
 	        	System.out.println("you do not see a flashlight right now");
 	        	return;
 	        }
-	        else if(seeHolyWater || item.equals("holy water")) {
+	        else if(!seeHolyWater && item.equals("holy water")) {
 	        	System.out.println("you do not see holy water right now");
 	        	return;
 	        }
-	        else if(seeMatches || item.equals("matches")) {
+	        else if(!seeMatches && item.equals("matches")) {
 	        	System.out.println("you do not see matches right now");
 	        	return;
 	        }
@@ -424,11 +505,13 @@ public class Game {
 	            System.out.println("drop what?");
 	            return;
 	        }
-	        else if(command.hasLine()) {
-	            System.out.println("i don't understand");
-	            return;
+	        String item;
+	        if(command.hasLine()) {
+	        	item = command.getSecondWord() + command.getLine();  
 	        }
-	        String item = command.getSecondWord();
+	        else {
+	        	item = command.getSecondWord();
+	        }
 	        Item itemToDrop = player.getItem(item);
 	        if(itemToDrop == null) {
 	            System.out.println("you do not have " +command.getSecondWord() +" in your inventory");
@@ -447,18 +530,22 @@ public class Game {
 	            return;
 	        }
 	        else if(command.hasLine()) {
-	            System.out.println("i don't understand");
+	            System.out.println("you cannot go there");
 	            return;
 	        }
 	        String direction = command.getSecondWord();
 	        Room nextRoom = currentRoom.getExit(direction);
 	        if(nextRoom == null) {
-	            System.out.println("you can't go there");
+	            System.out.println("you cannot go there");
 	            return;
 	        }
 	        else {
 	            currentRoom = nextRoom;
 	            printInformation();
 	        }
+	    }
+	    
+	    public void welcomeString() {
+	    	System.out.println("welcome to elena's text adventure game!\n\nyou are in a theater that is currently haunted by a phantom. the entire cast of the musical Phantom of the Opera has disappeared just before opening night! you must figure out how to get them back and make them reappear in time for their show. \n\nthe theater contains multiple rooms and various objects that will be useful for you. some objects cannot be taken unless you have seen them. many of these objects work together to aid you on your quest. \n\nto win the game, you must make the phantom bring everyone back within 200 moves (each move is one command). to see how many moves you have left, type 'counter'. \n\nto always print long room descriptions, type 'verbose'. to always print short room descriptions, type 'brief'. if you want help or a list of valid commands, type 'help'. to see this message again, type 'info'.\n\n");
 	    }
 	}
