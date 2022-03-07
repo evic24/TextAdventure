@@ -407,10 +407,10 @@ public class Game {
 	            System.out.println("examine what?");
 	            return;
 	        }
-	        if(!command.hasLine()) {
+	        else if(!command.hasLine()) {
 	            thingToExamine = command.getSecondWord();
 	        }
-	        else if(command.hasLine()) {
+	        else {
 	            thingToExamine = command.getSecondWord() + command.getLine();
 	        }
 	        if(thingToExamine.equals(currentRoom.getName()) || thingToExamine.equals("room")) {
@@ -545,7 +545,46 @@ public class Game {
 	        }
 	    }
 	    
+	    public void printItemsInRoom() {
+	    	String inventoryString = currentRoom.getInventoryString();
+	    	if(!seeKey && inventoryString.indexOf("key")!=-1) {
+	    		String newInvString = inventoryString.substring(0, inventoryString.indexOf("key")) + inventoryString.substring(inventoryString.indexOf("key") + 3, inventoryString.length());
+	    		System.out.println())
+	    	}
+	    }
+	    
 	    public void welcomeString() {
 	    	System.out.println("welcome to elena's text adventure game!\n\nyou are in a theater that is currently haunted by a phantom. the entire cast of the musical Phantom of the Opera has disappeared just before opening night! you must figure out how to get them back and make them reappear in time for their show. \n\nthe theater contains multiple rooms and various objects that will be useful for you. some objects cannot be taken unless you have seen them. many of these objects work together to aid you on your quest. \n\nto win the game, you must make the phantom bring everyone back within 200 moves (each move is one command). to see how many moves you have left, type 'counter'. \n\nto always print long room descriptions, type 'verbose'. to always print short room descriptions, type 'brief'. if you want help or a list of valid commands, type 'help'. to see this message again, type 'info'.\n\n");
 	    }
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
+	    
 	}

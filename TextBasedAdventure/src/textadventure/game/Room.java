@@ -56,7 +56,7 @@ public class Room
         
         Set<String> keys = inventory.keySet();
         for(String item: keys) {
-            returnString += " " + item;
+            returnString += item + ", ";
         }
         return returnString;
     }
@@ -66,7 +66,7 @@ public class Room
         
         Set<String> keys = exits.keySet();
         for(String exit: keys) {
-            returnString += " " + exit;
+            returnString += exit + ", ";
         }
         return returnString;
     }
