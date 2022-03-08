@@ -40,11 +40,12 @@ public class Game {
 	            System.out.println(currentRoom.getShortDescription());
 	        }
 	        System.out.println(currentRoom.getExitString()); 
+					printItemsInRoom();
 	    }
 	    
 	    public void setUpGame() {
 	        //creates environment of game
-	        Room stage = new Room("stage", "you are standing in the center of an empty stage looking out onto floor seats.", "you are standing in the center of an empty stage looking out onto rows of empty floor seats. velvet curtains block the stage from the wings. there’s an eerie vibe, as if you are not alone in this theater, yet there seems to be no sign of anyone else in this place.");
+	        Room stage = new Room("stage", "you are standing in the center of an empty stage looking out onto floor seats.", "you are standing in the center of an empty stage looking out onto rows of empty floor seats. velvet curtains block the stage from the wings. there's an eerie vibe, as if you are not alone in this theater, yet there seems to be no sign of anyone else in this place.");
 	        Room backstage = new Room("backstage", "you are backstage. there are lots of props and set pieces around.", "you have entered the backstage. a large velvet curtain separates you from the main stage. you can see many props and set pieces around, including a table with a book and a music box on it.");
 	        Room rightWing = new Room("right wing", "you are in the right wing of the backstage area.", "you have entered the right wing of the backstage area. to the southwest is the backstage and to the west is the stage. dark velvet curtains separate you from the main stage. you can see a piece of paper on the ground in front of you.");
 	        Room leftWing = new Room("left wing", "you are in the left wing of the backstage area.", "you have entered the left wing of the backstage area. to the south is the dressing room, to the east is the stage, and to the southeast is the backstage. Dark velvet curtains separate you from the main stage. on the wall are two pulleys, one tied to the wall and the other open and ready to pull");
@@ -546,11 +547,26 @@ public class Game {
 	    }
 	    
 	    public void printItemsInRoom() {
-	    	String inventoryString = currentRoom.getInventoryString();
-	    	if(!seeKey && inventoryString.indexOf("key")!=-1) {
-	    		String newInvString = inventoryString.substring(0, inventoryString.indexOf("key")) + inventoryString.substring(inventoryString.indexOf("key") + 3, inventoryString.length());
-	    		System.out.println())
+	    	String invString = currentRoom.getInventoryString();
+	    	if(!seeKey && invString.indexOf("key")!=-1) {
+	    		String newInvString = invString.substring(0, invString.indexOf("key")) + invString.substring(invString.indexOf("key") + 3, invString.length());
+	    		System.out.println(newInvString);
+					return;
 	    	}
+				else if(!seeFlashlight && invString.indexOf("flashlight")!=-1) {
+					String newInvString = invString.substring(0, invString.indexOf("flashlight")) + invString.substring(invString.indexOf("flashlight") + 10, invString.length());
+	    		System.out.println(newInvString);
+					return;
+				}
+				else if(!seeHolyWater && invString.indexOf("holy water")!=-1) {
+					String newInvString = invString.substring(0, invString.indexOf("holy water")) + invString.substring(invString.indexOf("matches") + 7, invString.length());
+	    		System.out.println(newInvString);
+					return;
+				}
+				else {
+					System.out.println(invString);
+					return;
+				}
 	    }
 	    
 	    public void welcomeString() {
