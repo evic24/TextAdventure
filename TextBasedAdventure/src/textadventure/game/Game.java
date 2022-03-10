@@ -14,11 +14,15 @@ public class Game {
 	    private boolean seeMatches;
 	    private boolean seePocket;
 	    private boolean shineFlashlight;
+	    private boolean holdToMirror;
 	    private String password;
 	    private boolean unlockComputer;
 	    private boolean enterUsername;
 	    private boolean musicBoxOn;
 	    private int musicCount;
+	    private boolean play;
+	    private boolean phantomAppear;
+	    private boolean pulleyDown;
 	    
 	    public Game() {
 	        parser = new Parser();
@@ -46,7 +50,7 @@ public class Game {
 	    public void setUpGame() {
 	        //creates environment of game
 	        Room stage = new Room("stage", "you are standing in the center of an empty stage looking out onto floor seats.", "you are standing in the center of an empty stage looking out onto rows of empty floor seats. velvet curtains block the stage from the wings. there's an eerie vibe, as if you are not alone in this theater, yet there seems to be no sign of anyone else in this place.");
-	        Room backstage = new Room("backstage", "you are backstage. there are lots of props and set pieces around.", "you have entered the backstage. a large velvet curtain separates you from the main stage. you can see many props and set pieces around, including a table with a book and a music box on it.");
+	        Room backstage = new Room("backstage", "you are backstage. there are lots of props and set pieces around.", "you have entered the backstage. a large velvet curtain separates you from the main stage. you can see many props and set pieces around, including a table with a scroll and a music box on it.");
 	        Room rightWing = new Room("right wing", "you are in the right wing of the backstage area.", "you have entered the right wing of the backstage area. to the southwest is the backstage and to the west is the stage. dark velvet curtains separate you from the main stage. you can see a piece of paper on the ground in front of you.");
 	        Room leftWing = new Room("left wing", "you are in the left wing of the backstage area.", "you have entered the left wing of the backstage area. to the south is the dressing room, to the east is the stage, and to the southeast is the backstage. Dark velvet curtains separate you from the main stage. on the wall are two pulleys, one tied to the wall and the other open and ready to pull");
 	        Room dressingRoom = new Room("dressing room", "you are in the dressing room. you can see costumes and a mirror.", "you have entered the dressing room. to the north is the left wing and to the east is the backstage. various costumes hang from clothing racks against the wall including a nun costume. there is a long mirror against the other wall.");
@@ -56,7 +60,7 @@ public class Game {
 	        Item paper = new Item("paper", "the paper is small and appears to have no writing on it. however, you can see a slight difference in texture in some areas of the paper");
 	        Item key = new Item("key", "the key is silver and metal. it probably unlocks something in this theater.");
 	        Item flashlight = new Item("flashlight", "the flashlight is an LED UV flashlight. it is black and lightweight.");
-	        Item book = new Item("book", "the book is titled 'Getting Rid of Ghosts. the front page says:\n'when you have a ghost or phantom trapped, spray holy water on it and light it on fire to get rid of it.'");
+	        Item scroll = new Item("scroll", "the scroll is small and fragile. it appears to be old and contains writing on it");//"the  is titled 'Getting Rid of Ghosts. the front page says:\n'when you have a ghost or phantom trapped, spray holy water on it and light it on fire to get rid of it.'"
 	        Item holyWater = new Item("holy water", "the holy water is contained in a plastic spray bottle with a label that says 'holy water'. it is clear and somewhat shimmery.");
 	        Item matches = new Item("matches", "the box of matches is small and contains 12 matches. it seems to be unused.");
 	        Item musicBox = new Item("music box", "the music box is pink and looks very old. it has a hand crank on the side of it. the top is open and you can see a small ballerina in the center of the box.");
@@ -66,7 +70,7 @@ public class Game {
 	        dressingRoom.setItem("holy water", holyWater);
 	        dressingRoom.setItem("matches", matches);
 	        techBooth.setItem("flashlight", flashlight);
-	        backstage.setItem("book", book);
+	        backstage.setItem("scroll", scroll);
 	        backstage.setItem("music box", musicBox);
 	        
 	        stage.setExit("south", backstage);
@@ -99,10 +103,11 @@ public class Game {
 	        
 	        welcomeString();
 	        printInformation();
+	        play = true;
 	    }
 	    
 	    public void play() {
-	        while(true) {
+	        while(play) {
 	            Command command = parser.getCommand();
 	            try {
 	                //cls_var.main(); 
@@ -110,10 +115,8 @@ public class Game {
 	                System.out.println(e); 
 	            }
 	            processCommand(command);
-	            moveCount++;
-	            if(musicBoxOn) {
-	            	musicCount++;
-	            }
+	            loseMoveCount();
+	            loseMusicBox();
 	        }
 	    }
 	    
@@ -181,6 +184,9 @@ public class Game {
 	            case "hold":
 	            	hold(command);
 	            	break;
+	            case "stop":
+	            	stop(command);
+	            	break;
 	            default:
 	                System.out.println("that is not a valid command");
 	        }
@@ -190,14 +196,50 @@ public class Game {
 	    	System.out.println("here is a list of valid commands:\n\nBRIEF, to only print short room descriptions\nVERBOSE, to only print long room descriptions\nGO followed by a direction, to move to another room\nINVENTORY, to print a list of the items in your personal inventory\nGRAB or TAKE followed by an item, to place it in your personal inventory\nDROP followed by an item, to remove it from your personal inventory and place it in the current room\nEXAMINE followed by a room or object, to get the description of the room or object\nCOUNTER, to see how many moves you have left\nHELP, to get this list again\nREAD followed by an object\nSHINE ____ AT ____\nLOOK followed by up or down\nUNLOCK followed by an object\nUSERNAME\nPASSWORD\nPLAY followed by an object\nHOLD ___ TO ____\nINFO, to print the welcome message");
 	    }
 	    
+	    public void pull(Command command) {
+	    	if(!command.hasSecondWord()) {
+	    		System.out.println("pull what?");
+	    		return;
+	    	}
+	    	else if(!command.getSecondWord().equals("pulley")) {
+	    		System.out.println("you cannot pull that");
+	    		return;
+	    	}
+	    	else if(!phantomAppear) {
+	    		if(pulleyDown) {
+	    			System.out.println("you pull the pulley. the cage is lifted up back to the ceiling");
+	    			pulleyDown = false;
+	    			return;
+	    		}
+	    		else {
+	    			System.out.println("you pull the pulley. the cage drops down from the ceiling to the stage floor. it makes a loud sound");
+	    			pulleyDown = true;
+	    			return;
+	    		}
+	    	}
+	    	else if(!pulleyDown) {
+	    		System.out.println("you pull the pulley. the cage drops down and traps the phantom inside of it");
+	    		pulleyDown = true;
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("you pull the pulley. the cage is lifted up back to the ceiling. the phantom is not trapped anymore and looks like he is going to kill you unless you trap him again");
+	    		pulleyDown = false;
+	    	}
+	    }
+	    
 	    public void play(Command command) {
-	    	if(!command.hasLine()) {
+	    	if(!command.hasSecondWord()) {
 	    		System.out.println("play what?");
 	    		return;
 	    	}
 	    	else if(command.getSecondWord().equals("music")) {
-	    		if(currentRoom.getItem("music box")!=null) {
-	    			System.out.println("you turn the handle of the music box. music starts playing and the ballerina starts turning. it is a gentle sound but begins to sound creepy after a little bit. you get a weird feeling and think that you should probably stop the music before something bad happens.");
+	    		if(musicBoxOn) {
+	    			System.out.println("the music box is already playing");
+	    			return;
+	    		}
+	    		else if(currentRoom.getItem("music box")!=null) {
+	    			System.out.println("you turn the handle of the music box. music starts playing and the ballerina starts turning. it is a gentle sound and you are vibing with it");
 	    			musicBoxOn = true;
 	    		}
 	    		else if(player.getItem("music box")!=null) {
@@ -211,6 +253,35 @@ public class Game {
 	    	}
 	    	else {
 	    		System.out.println("you cannot play that");
+	    		return;
+	    	}
+	    }
+	    
+	    public void stop(Command command) {
+	    	if(!command.hasSecondWord()) {
+	    		System.out.println("stop what?");
+	    		return;
+	    	}
+	    	else if(command.getSecondWord().equals("music")) {
+	    		if(!musicBoxOn) {
+	    			System.out.println("the music box is not playing right now so you cannot stop it");
+	    			return;
+	    		}
+	    		else if(currentRoom.getItem("music box")!=null) {
+	    			System.out.println("you stop the handle of the music box. music stops playing and the ballerina stops turning. you feel normal");
+	    			musicBoxOn = true;
+	    		}
+	    		else if(player.getItem("music box")!=null) {
+	    			System.out.println("you must drop the music box to stop it.");
+	    			return;
+	    		}
+	    		else {
+	    			System.out.println("you do not see a music box");
+	    			return;
+	    		}
+	    	}
+	    	else {
+	    		System.out.println("you cannot stop that");
 	    		return;
 	    	}
 	    }
@@ -298,8 +369,9 @@ public class Game {
 	    		}
 	    		else {
 	    			System.out.println("you hold the paper up to the mirror.");
-	    			player.getItem("paper").changeDescription("holding the paper up to the mirror, you can now see that the paper reads PASSWORD: E24E20R11J16. the writing has been magically changed and now does not appear backwards when you read it normally");
+	    			player.getItem("paper").changeDescription("the paper is small and contains writing on it that does not appear backwards anymore. you can see that it has been magically changed and you can read it while looking at it normally too");
 		    		System.out.println(player.getItem("paper").getDescription());
+		    		holdToMirror = true;
 		    		return;
 	    		}
 	    	}
@@ -365,7 +437,7 @@ public class Game {
 		        }
 	        	else {
 	        		System.out.println("you shine the flashlight on the piece on paper.");
-	        		player.getItem("paper").changeDescription("after shining the flashlight on the paper, you can now see writing, presumably written in invisible ink. the writing appears to be backwards and you cannot read it.");
+	        		player.getItem("paper").changeDescription("the paper is small and you can see writing on it now, presumably written in invisible ink. the writing appears to be backwards and you cannot read it.");
 		        	System.out.println(player.getItem("paper").getDescription());
 		        	shineFlashlight = true;
 		        	return;
@@ -383,8 +455,36 @@ public class Game {
 	            return;
 	        }
 	        else if(currentRoom.getName().equals("house") && command.getSecondWord().equals("engraving")) {
-	        	System.out.println("the engraving reads: \n\nThis theater is dedicated to Brian Adams, the founder of Lab Productions.");
+	        	System.out.println("the engraving reads: \n\tThis theater is dedicated to Brian Adams, the founder of Lab Productions.");
 	        	return;
+	        }
+	        else if(command.getSecondWord().equals("paper")) {
+	        	if(player.getItem("paper")==null) {
+	        		System.out.println("you must have the paper in your inventory to read it");
+	        		return;
+	        	}
+	        	else if(!shineFlashlight) {
+	        		System.out.println("the paper is blank to your eye");
+	        		return;
+	        	}
+	        	else if(holdToMirror) {
+	        		System.out.println("the paper reads: \n\t'PASSWORD: E24E20R11J16'");
+	        		return;
+	        	}
+	        	else {
+	        		System.out.println("the writing on the paper is backwards. you cannot read it");
+	        		return;
+	        	}
+	        }
+	        else if(command.getSecondWord().equals("scroll")) {
+	        	if(player.getItem("scroll")==null) {
+	        		System.out.println("you must have the scroll in your inventory to read it");
+	        		return;
+	        	}
+	        	else {
+	        		System.out.println("the scroll reads: \n\t'Getting Rid of Ghosts: when you have a ghost or phantom trapped, spray holy water on it and light it on fire to get rid of it.'");
+	        		return;
+	        	}
 	        }
 	        else {
 	        	System.out.println("you cannot read that. try examine or check your spelling");
@@ -570,12 +670,51 @@ public class Game {
 	    }
 	    
 	    public void welcomeString() {
-	    	System.out.println("welcome to elena's text adventure game!\n\nyou are in a theater that is currently haunted by a phantom. the entire cast of the musical Phantom of the Opera has disappeared just before opening night! you must figure out how to get them back and make them reappear in time for their show. \n\nthe theater contains multiple rooms and various objects that will be useful for you. some objects cannot be taken unless you have seen them. many of these objects work together to aid you on your quest. \n\nto win the game, you must make the phantom bring everyone back within 200 moves (each move is one command). to see how many moves you have left, type 'counter'. \n\nto always print long room descriptions, type 'verbose'. to always print short room descriptions, type 'brief'. if you want help or a list of valid commands, type 'help'. to see this message again, type 'info'.\n\n");
+	    	System.out.println("welcome to elena's text adventure game!\n\nyou are in a theater that is currently haunted by a phantom. the entire cast of the musical Phantom of the Opera has disappeared just before opening night! you must figure out how to get them back and make them reappear in time for their show before the phantom kills you. \n\nthe theater contains multiple rooms and various objects that will be useful for you. some objects cannot be taken unless you have seen them. many of these objects work together to aid you on your quest. \n\nto win the game, you must make the phantom bring everyone back within 200 moves (each move is one command). to see how many moves you have left, type 'counter'. \n\nto always print long room descriptions, type 'verbose'. to always print short room descriptions, type 'brief'. if you want help or a list of valid commands, type 'help'. to see this message again, type 'info'.\n\n");
 	    }
 	    
+	    public void loseMusicBox() {
+	    	if(musicBoxOn) {
+	    		musicCount++;
+	    	}
+	    	else {
+	    		return;
+	    	}
+	    	if(musicCount>8) {
+	    		System.out.println("out of the corner of your eye, you see a shadow swoop down. by leaving the music box playing, you have attracted the phantom. you lose your vision and die. game over.");
+	    		play = false;
+	    		return;
+	    	}
+	    	else if(musicCount>=5) {
+	    		
+	    		System.out.println("the music continues to play. it sounds very creepy. you have a weird feeling and think that you should probably stop the music before something bad happens.");
+	    		return;
+	    	}
+	    	else {
+	    		System.out.println("the music continues to play. it sounds a bit creepy now");
+	    		return;
+	    	}
+	    }
 	    
-	    
-	    
+	    public void loseMoveCount() {
+	    	moveCount++;
+	    	if(moveCount==200) {
+	    		System.out.println("\nyour move count = 200. you are out of moves! game over.");
+	    		play = false;
+	    		return;
+	    	}
+	    	else if(moveCount==150) {
+	    		System.out.println("\nwarning: your move count = 150. you only have 50 moves left! good luck!");
+	    		return;
+	    	}
+	    	else if(moveCount==100) {
+	    		System.out.println("\nwarning: your move count = 100. you only have 100 moves left! good luck!");
+	    		return;
+	    	}
+	    	else {
+	    		return;
+	    	}
+	    }
 	    
 	    
 	    
